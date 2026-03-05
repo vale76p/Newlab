@@ -1,7 +1,5 @@
 {
   "name": "Newlab LED",
   "content_in_root": false,
-  "render_readme": true,
-  "domains": ["newlab"],
-  "iot_class": "cloud_polling"
+  "render_readme": true
 }

@@ -1,13 +1,13 @@
 {
   "domain": "newlab",
   "name": "Newlab LED",
-  "version": "1.0.1",
-  "documentation": "https://github.com/vale76p/Newlab",
-  "issue_tracker": "https://github.com/vale76p/Newlab/issues",
   "codeowners": ["@vale76p"],
-  "requirements": [],
   "config_flow": true,
-  "iot_class": "cloud_polling",
+  "documentation": "https://github.com/vale76p/Newlab",
   "integration_type": "hub",
-  "loggers": ["custom_components.newlab"]
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/vale76p/Newlab/issues",
+  "loggers": ["custom_components.newlab"],
+  "requirements": [],
+  "version": "1.0.1"
 }
