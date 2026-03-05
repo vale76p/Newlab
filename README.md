@@ -2,7 +2,7 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.1-green.svg)](docs/CHANGELOG.md)
 
 Custom integration for controlling **Newlab LED** lighting zones via the
 `smarthome.newlablight.com` cloud platform.
@@ -182,6 +182,16 @@ Then check **Settings → System → Logs** and filter by `newlab`.
 - Home Assistant 2024.1 or newer
 - Active account on `smarthome.newlablight.com`
 - Internet access from the HA host
+
+---
+
+## Changelog
+
+### [1.0.1] — 2026-03-05
+- **Fix:** sensori diagnostici mostravano "non disponibile" invece di "sconosciuto" quando il valore non veniva trovato nell'HTML del cloud
+
+### [1.0.0] — 2026-03-05
+- Release iniziale: 4 piattaforme (light, number, sensor, button), discovery automatico zone, coordinator singolo poll, re-auth automatica, offline detection, slider PWM, sensori diagnostici, pulsante refresh impianto
 
 ---
 

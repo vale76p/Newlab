@@ -1,7 +1,7 @@
 {
   "domain": "newlab",
   "name": "Newlab LED",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "documentation": "https://github.com/valentinopemoni/Newlab",
   "issue_tracker": "https://github.com/valentinopemoni/Newlab/issues",
   "codeowners": ["@valentinopemoni"],

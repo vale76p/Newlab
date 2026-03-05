@@ -83,6 +83,8 @@ class NewlabPlantCodeSensor(_NewlabHubSensor):
 
     Shown in the Diagnostics section of the device card.
     Value is extracted from the cloud HTML on every poll.
+    State is 'unknown' (not 'unavailable') if the value cannot be parsed from HTML,
+    which can happen on the first poll or if the page structure changed.
     """
 
     _attr_unique_id = "newlab_hub_plant_code"
@@ -94,10 +96,6 @@ class NewlabPlantCodeSensor(_NewlabHubSensor):
         """Return the plant code, or None if not yet discovered."""
         return self.coordinator.plant_code or None
 
-    @property
-    def available(self) -> bool:
-        return super().available and bool(self.coordinator.plant_code)
-
 
 # ── Versione Cloud ────────────────────────────────────────────────────────────
 
@@ -105,6 +103,7 @@ class NewlabCloudVersionSensor(_NewlabHubSensor):
     """Diagnostic sensor: Versione Cloud (app/firmware version from page title).
 
     Example value: "3.47"
+    State is 'unknown' (not 'unavailable') if not parseable from cloud HTML.
     """
 
     _attr_unique_id = "newlab_hub_cloud_version"
@@ -114,10 +113,6 @@ class NewlabCloudVersionSensor(_NewlabHubSensor):
     @property
     def native_value(self) -> str | None:
         return self.coordinator.cloud_version or None
-
-    @property
-    def available(self) -> bool:
-        return super().available and bool(self.coordinator.cloud_version)
 
 
 # ── Ultima sincronizzazione cloud ─────────────────────────────────────────────
@@ -129,6 +124,7 @@ class NewlabCloudSyncSensor(_NewlabHubSensor):
     last synchronized with the cloud). This is NOT the HA polling timestamp.
 
     Example value: "Lunedì 16 Febbraio 2026 19:01"
+    State is 'unknown' (not 'unavailable') if not parseable from cloud HTML.
     """
 
     _attr_unique_id = "newlab_hub_cloud_sync"
@@ -138,7 +134,3 @@ class NewlabCloudSyncSensor(_NewlabHubSensor):
     @property
     def native_value(self) -> str | None:
         return self.coordinator.cloud_last_sync or None
-
-    @property
-    def available(self) -> bool:
-        return super().available and bool(self.coordinator.cloud_last_sync)
