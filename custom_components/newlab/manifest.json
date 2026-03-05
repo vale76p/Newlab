@@ -1,0 +1,12 @@
+{
+  "domain": "newlab",
+  "name": "Newlab LED",
+  "version": "1.0.0",
+  "documentation": "https://github.com/valentinopemoni/Newlab",
+  "issue_tracker": "https://github.com/valentinopemoni/Newlab/issues",
+  "codeowners": ["@valentinopemoni"],
+  "requirements": [],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "homeassistant": "2024.1.0"
+}

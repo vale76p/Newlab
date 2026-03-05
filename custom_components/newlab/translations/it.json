@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connetti Newlab LED",
+        "description": "Inserisci le credenziali di smarthome.newlablight.com. Usa lo **username** (es. `mario.rossi`), NON l'indirizzo email.",
+        "data": {
+          "username": "Username Newlab (non l'email)",
+          "password": "Password",
+          "poll_interval": "Intervallo polling (secondi)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Credenziali non valide. Assicurati di usare lo username Newlab (es. `mario.rossi`), NON l'email. Controlla anche la password.",
+      "cannot_connect": "Impossibile connettersi al cloud Newlab. Verifica la connessione internet.",
+      "cannot_parse": "Risposta HTML non riconosciuta. La struttura del sito potrebbe essere cambiata.",
+      "unknown": "Errore imprevisto. Controlla i log di Home Assistant."
+    },
+    "abort": {
+      "already_configured": "Account Newlab già configurato."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni Newlab LED",
+        "data": {
+          "poll_interval": "Intervallo polling (secondi)"
+        }
+      }
+    }
+  }
+}
