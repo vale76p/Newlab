@@ -2,7 +2,7 @@
   "name": "Newlab LED",
   "content_in_root": false,
   "render_readme": true,
-  "domains": ["light", "number", "sensor", "button"],
+  "domains": ["light"],
   "iot_class": "cloud_polling",
   "homeassistant": "2024.1.0"
 }
