@@ -1,6 +1,6 @@
 # Newlab LED — Home Assistant Integration
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
+[![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
 [![Version](https://img.shields.io/badge/version-1.0.1-green.svg)](docs/CHANGELOG.md)
 
@@ -64,10 +64,9 @@ is always stable.
 
 ### Via HACS (recommended)
 
-1. Open **HACS → Integrations → ⋮ → Custom repositories**
-2. Add URL: `https://github.com/vale76p/Newlab` — Category: **Integration**
-3. Find **Newlab LED** and click **Install**
-4. Restart Home Assistant
+1. Open **HACS → Integrations**
+2. Search for **Newlab LED** and click **Install**
+3. Restart Home Assistant
 
 ### Manual
 
