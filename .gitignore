@@ -1,5 +1,19 @@
-custom_components/.DS_Store
-custom_components/newlab/.DS_Store
 .DS_Store
-.cloude
-/docs
+.claude/
+
+# Python test/coverage artifacts
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+__pycache__/
+*.py[cod]
+
+.coverage
+.coverage.*
+coverage.xml
+coverage.txt
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/

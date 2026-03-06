@@ -2,7 +2,9 @@
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-green.svg)](README.md)
+[![Validate](https://github.com/vale76p/Newlab/actions/workflows/validate.yml/badge.svg)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
+[![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
 
 Custom integration for controlling **Newlab LED** lighting zones via the
 `smarthome.newlablight.com` cloud platform.
@@ -178,17 +180,37 @@ Then check **Settings → System → Logs** and filter by `newlab`.
 
 ---
 
+## Sviluppo Locale (Test + Lint)
+
+Questa repo include:
+- **Lint** con `ruff` (controlli statici Python)
+- **Test** con `pytest` (unit test parser HTML Newlab)
+- **CI GitHub** che esegue entrambi su ogni push/PR
+
+Comandi locali:
+
+```bash
+# Installa tool di sviluppo (una volta)
+python3 -m pip install --user ruff pytest aiohttp
+
+# Lint
+ruff check .
+
+# Test
+pytest -q
+
+# Coverage report (console + coverage.xml + htmlcov/)
+pytest -q --cov=custom_components/newlab --cov-report=term-missing --cov-report=xml --cov-report=html
+```
+
+Se `ruff`/`pytest` non sono nel `PATH`, usa:
+`python3 -m ruff check .` e `python3 -m pytest -q`.
+
+---
+
 ## Changelog
 
-### [1.0.2] — 2026-03-06
-- **Fix:** i sensori diagnostici "Codice Impianto" e "Ultima Sincronizzazione Cloud" mostravano sempre "Sconosciuto" perché le regex cercavano le etichette italiane (`Codice Impianto`, `Ultima sincronizzazione`) ma il cloud Newlab risponde in inglese (`Plant Id`, `Last syncronization`). Le regex ora supportano entrambe le lingue
-- **Aggiunto:** brand assets (`icon.png`, `logo.png`) per HACS / HA 2026.3+
-
-### [1.0.1] — 2026-03-05
-- **Fix:** sensori diagnostici mostravano "non disponibile" invece di "sconosciuto" quando il valore non veniva trovato nell'HTML del cloud
-
-### [1.0.0] — 2026-03-05
-- Release iniziale: 4 piattaforme (light, number, sensor, button), discovery automatico zone, coordinator singolo poll, re-auth automatica, offline detection, slider PWM, sensori diagnostici, pulsante refresh impianto
+Vedi [CHANGELOG.md](CHANGELOG.md) nella root del repository.
 
 ---
 
