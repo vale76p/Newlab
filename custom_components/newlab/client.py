@@ -18,8 +18,14 @@ from .const import (
     REFRESH_URL,
     WELCOME_URL,
 )
-from .models import NewlabAuthError, NewlabConnectionError, NewlabGroup, NewlabParseError, NewlabSystemInfo
-from .parsers import _parse_groups, _parse_system_info
+from .models import (
+    NewlabAuthError,
+    NewlabConnectionError,
+    NewlabGroup,
+    NewlabParseError,
+    NewlabSystemInfo,
+)
+from .parsers import parse_groups, parse_system_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -131,30 +137,34 @@ class NewlabAPI:
                     raise NewlabConnectionError(f"GET {HOME_URL} returned HTTP {resp.status}")
 
                 final_url = str(resp.url).lower()
-                if "login" in final_url and HOME_URL not in final_url:
+                if "login" in final_url and HOME_URL.lower() not in final_url:
                     raise NewlabAuthError("Session expired (redirected to login)")
 
                 html = await resp.text()
         except aiohttp.ClientError as exc:
             raise NewlabConnectionError(f"GET home failed: {exc}") from exc
 
-        groups = _parse_groups(html)
+        groups = parse_groups(html)
+
         if not self._system_info_fetched:
-            self.system_info = _parse_system_info(html)
-            if any(
-                [
+            self.system_info = parse_system_info(html)
+            if self.system_info.plant_code or self.system_info.cloud_version or self.system_info.cloud_last_sync:
+                self._system_info_fetched = True
+                _LOGGER.info(
+                    "[poll] system_info fetched (one-time): plant=%r version=%r sync=%r",
                     self.system_info.plant_code,
                     self.system_info.cloud_version,
                     self.system_info.cloud_last_sync,
-                ]
-            ):
-                self._system_info_fetched = True
+                )
+            else:
+                _LOGGER.debug("[poll] system_info still empty — will retry on next poll")
 
         _LOGGER.debug("[poll] complete — %d group(s) in %.2fs", len(groups), time.monotonic() - t0)
         return groups
 
     async def set_light(self, id_group: int, pwm: int) -> bool:
         if not self.is_authenticated:
+            _LOGGER.error("[control] set_light called without authentication")
             return False
 
         pwm = max(0, min(255, int(pwm)))
@@ -173,12 +183,22 @@ class NewlabAPI:
                 data=payload,
                 headers=headers,
             ) as resp:
-                return resp.status in (200, 204)
-        except aiohttp.ClientError:
+                success = resp.status in (200, 204)
+                if not success:
+                    _LOGGER.warning(
+                        "[control] FAILED — group=%d pwm=%d HTTP %d",
+                        id_group, pwm, resp.status,
+                    )
+                return success
+        except aiohttp.ClientError as exc:
+            _LOGGER.error(
+                "[control] exception — group=%d pwm=%d: %s", id_group, pwm, exc
+            )
             return False
 
     async def async_refresh_plant(self) -> bool:
         if not self.is_authenticated:
+            _LOGGER.error("[refresh] async_refresh_plant called without authentication")
             return False
 
         headers = {
@@ -191,8 +211,15 @@ class NewlabAPI:
         try:
             async with self._session.post(REFRESH_URL, headers=headers) as resp:
                 text = (await resp.text()).strip()
-                return text.upper() == "OK"
-        except aiohttp.ClientError:
+                success = text.upper() == "OK"
+                if not success:
+                    _LOGGER.warning(
+                        "[refresh] unexpected response: HTTP %d body=%r",
+                        resp.status, text[:80],
+                    )
+                return success
+        except aiohttp.ClientError as exc:
+            _LOGGER.error("[refresh] plantrefresh request failed: %s", exc)
             return False
 
     async def ensure_authenticated(self) -> None:

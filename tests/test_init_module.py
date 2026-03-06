@@ -4,7 +4,6 @@ import asyncio
 import importlib
 from types import SimpleNamespace
 
-
 init_module = importlib.import_module("custom_components.newlab.__init__")
 api_module = importlib.import_module("custom_components.newlab.api")
 

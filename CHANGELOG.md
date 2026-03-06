@@ -10,6 +10,56 @@ No changes yet.
 
 ---
 
+## [1.2.0] — 2026-03-06
+
+### Fixed
+
+- **`NewlabParseError` missing from `client.py` imports** — login flow would crash with
+  `NameError` if the welcome page HTML lacked the CSRF token. Re-added the import from `models`.
+- **Silent error swallowing in `set_light()` / `async_refresh_plant()`** — restored
+  `_LOGGER.warning` on non-200 responses and `_LOGGER.error` on connection exceptions;
+  added `_LOGGER.error` when called without authentication.
+- **Reduced observability in `parsers.py`** — restored per-strategy DEBUG logging, added
+  ERROR log before raising `NewlabParseError`, and WARNING logs when system-info fields
+  are not found.
+- **URL comparison in `get_groups()`** — fixed login-redirect detection to use
+  case-insensitive comparison (`HOME_URL.lower()`).
+- **Import ordering** — fixed `ruff I001` violations across coordinator, config_flow, and
+  test modules.
+- **Quoted type annotation** — removed unnecessary string quotes from
+  `config_flow.py:async_get_options_flow` return type (`UP037`).
+
+### Changed
+
+- **Shared `DeviceInfo` via coordinator** — `coordinator.hub_device_info` property replaces
+  identical `DeviceInfo(…)` blocks duplicated in `light.py`, `number.py`, `sensor.py`, and
+  `button.py`. Entities now delegate to `self.coordinator.hub_device_info`.
+- **Public parser API** — renamed `_parse_groups` → `parse_groups` and
+  `_parse_system_info` → `parse_system_info` in `parsers.py`; updated `api.py` facade
+  exports and all internal callers.
+- **`strings.json` in English** — HA convention requires `strings.json` in English;
+  Italian translations remain in `translations/it.json`.
+- **Ruff lint rules expanded** — added `I` (isort), `B` (bugbear), `UP` (pyupgrade),
+  `SIM` (simplify). Suppressed `UP017` (`datetime.UTC`) for Python 3.9 test compatibility.
+- **Dead constants removed** — `CONF_USERNAME`, `CONF_PASSWORD`, `DATA_COORDINATOR`,
+  `DATA_API` removed from `const.py` (unused after Codex refactor).
+
+### Added
+
+- **6 new parser tests** — Strategy C (`data-group`), Strategy D (broad fallback),
+  L4 (`td_text`), parse-error (`pytest.raises`), partial system info, empty HTML.
+  Total parsing tests: 12 (was 6).
+- **`pytest.raises` idiom** — replaced `try/except/raise AssertionError` anti-pattern
+  in `test_client.py` and `test_coordinator.py`.
+
+### Quality
+
+- Ruff lint: **0 errors** (was 9).
+- Test suite: **31 tests**, all passing.
+- Coverage: **87%** total (was 84%). `parsers.py` and `models.py` at **100%**.
+
+---
+
 ## [1.1.1] — 2026-03-06
 
 ### Fixed

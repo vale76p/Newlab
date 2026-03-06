@@ -2,31 +2,31 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connetti Newlab LED",
-        "description": "Inserisci le credenziali di smarthome.newlablight.com. Usa lo **username** (es. `mario.rossi`), NON l'indirizzo email.",
+        "title": "Connect Newlab LED",
+        "description": "Enter your smarthome.newlablight.com credentials. Use your **username** (e.g. `mario.rossi`), NOT your email address.",
         "data": {
-          "username": "Username Newlab (non l'email)",
+          "username": "Newlab username (not email)",
           "password": "Password",
-          "poll_interval": "Intervallo polling (secondi)"
+          "poll_interval": "Poll interval (seconds)"
         }
       }
     },
     "error": {
-      "invalid_auth": "Credenziali non valide. Assicurati di usare lo username Newlab (es. `mario.rossi`), NON l'email. Controlla anche la password.",
-      "cannot_connect": "Impossibile connettersi al cloud Newlab. Verifica la connessione internet.",
-      "cannot_parse": "Risposta HTML non riconosciuta. La struttura del sito potrebbe essere cambiata.",
-      "unknown": "Errore imprevisto. Controlla i log di Home Assistant."
+      "invalid_auth": "Invalid credentials. Make sure you are using your Newlab username (e.g. `mario.rossi`), NOT your email address. Check your password too.",
+      "cannot_connect": "Cannot connect to Newlab cloud. Check your internet connection.",
+      "cannot_parse": "Unrecognised HTML response. The site structure may have changed.",
+      "unknown": "Unexpected error. Check the Home Assistant logs."
     },
     "abort": {
-      "already_configured": "Account Newlab già configurato."
+      "already_configured": "Newlab account already configured."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Opzioni Newlab LED",
+        "title": "Newlab LED Options",
         "data": {
-          "poll_interval": "Intervallo polling (secondi)"
+          "poll_interval": "Poll interval (seconds)"
         }
       }
     }

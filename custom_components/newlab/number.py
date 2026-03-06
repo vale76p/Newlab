@@ -16,7 +16,6 @@ import logging
 from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -109,22 +108,12 @@ class NewlabPWMNumber(CoordinatorEntity[NewlabCoordinator], NumberEntity):
             group.pwm,
         )
 
-    # ── Device info (dynamic, same device as the light entity) ─────────────
+    # ── Device info (shared via coordinator) ─────────────────────────────
 
     @property
-    def device_info(self) -> DeviceInfo:
-        """Same device identifiers as NewlabLight → both appear on one card."""
-        plant = self.coordinator.plant_code or None
-        version = self.coordinator.cloud_version or None
-        return DeviceInfo(
-            identifiers={(DOMAIN, "newlab_hub")},
-            name="Newlab LED Controller",
-            manufacturer="Newlab",
-            model="Smart LED Cloud",
-            sw_version=version,
-            configuration_url="https://smarthome.newlablight.com",
-            serial_number=plant,
-        )
+    def device_info(self):
+        """Delegate to coordinator.hub_device_info (single source of truth)."""
+        return self.coordinator.hub_device_info
 
     # ── Internal helper ─────────────────────────────────────────────────────
 

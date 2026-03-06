@@ -2,9 +2,9 @@
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![Version](https://img.shields.io/badge/version-1.1.1-green.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](CHANGELOG.md)
 [![Validate](https://github.com/vale76p/Newlab/actions/workflows/validate.yml/badge.svg)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
-[![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
+[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
 
 Custom integration for controlling **Newlab LED** lighting zones via the
 `smarthome.newlablight.com` cloud platform.
@@ -59,6 +59,12 @@ You can rename entities in HA at any time — the unique ID is always stable.
 ## Installation
 
 ### Via HACS (recommended)
+
+Newlab LED is available in [HACS](https://hacs.xyz) (Home Assistant Community Store).
+
+Use this link to directly go to the repository in HACS:
+
+[![Open HACS Repository on my](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=vale76p&repository=Newlab&category=integration)
 
 1. Open **HACS → Integrations**
 2. Search for **Newlab LED** and click **Install**
@@ -191,7 +197,7 @@ Comandi locali:
 
 ```bash
 # Installa tool di sviluppo (una volta)
-python3 -m pip install --user ruff pytest aiohttp
+python3 -m pip install --user ruff pytest pytest-cov aiohttp
 
 # Lint
 ruff check .

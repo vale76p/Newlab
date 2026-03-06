@@ -16,7 +16,6 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -63,19 +62,9 @@ class NewlabRefreshButton(CoordinatorEntity[NewlabCoordinator], ButtonEntity):
         super().__init__(coordinator)
 
     @property
-    def device_info(self) -> DeviceInfo:
-        """Same device as all other Newlab entities."""
-        plant = self.coordinator.plant_code or None
-        version = self.coordinator.cloud_version or None
-        return DeviceInfo(
-            identifiers={(DOMAIN, "newlab_hub")},
-            name="Newlab LED Controller",
-            manufacturer="Newlab",
-            model="Smart LED Cloud",
-            sw_version=version,
-            configuration_url="https://smarthome.newlablight.com",
-            serial_number=plant,
-        )
+    def device_info(self):
+        """Delegate to coordinator.hub_device_info (single source of truth)."""
+        return self.coordinator.hub_device_info
 
     async def async_press(self) -> None:
         """Handle button press: refresh plant then update coordinator."""

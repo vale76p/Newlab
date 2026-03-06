@@ -1,3 +1,5 @@
+"""Unit tests for the NewlabCoordinator."""
+
 from __future__ import annotations
 
 import asyncio
@@ -5,6 +7,7 @@ import importlib
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
+import pytest
 
 coordinator_module = importlib.import_module("custom_components.newlab.coordinator")
 api_module = importlib.import_module("custom_components.newlab.api")
@@ -105,9 +108,5 @@ def test_coordinator_reauth_failure_raises_update_failed() -> None:
         poll_interval=10,
     )
 
-    try:
+    with pytest.raises(update_module.UpdateFailed, match="Re-authentication failed"):
         asyncio.run(coordinator._async_update_data())
-    except update_module.UpdateFailed as exc:
-        assert "Re-authentication failed" in str(exc)
-    else:
-        raise AssertionError("Expected UpdateFailed")

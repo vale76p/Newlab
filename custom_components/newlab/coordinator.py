@@ -24,6 +24,7 @@ import time
 from datetime import datetime, timedelta
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -92,6 +93,21 @@ class NewlabCoordinator(DataUpdateCoordinator[dict[int, NewlabGroup]]):
         _LOGGER.debug(
             "[coordinator] initialized — poll_interval=%ds",
             poll_interval,
+        )
+
+    @property
+    def hub_device_info(self) -> DeviceInfo:
+        """Shared DeviceInfo for all entities belonging to this hub."""
+        plant = self.plant_code or None
+        version = self.cloud_version or None
+        return DeviceInfo(
+            identifiers={(DOMAIN, "newlab_hub")},
+            name="Newlab LED Controller",
+            manufacturer="Newlab",
+            model="Smart LED Cloud",
+            sw_version=version,
+            configuration_url="https://smarthome.newlablight.com",
+            serial_number=plant,
         )
 
     @property

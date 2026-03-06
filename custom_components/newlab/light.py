@@ -20,7 +20,6 @@ from homeassistant.components.light import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -117,26 +116,12 @@ class NewlabLight(CoordinatorEntity[NewlabCoordinator], LightEntity):
             group.pwm,
         )
 
-    # ── Device info (dynamic) ──────────────────────────────────────────────
+    # ── Device info (shared via coordinator) ─────────────────────────────
 
     @property
-    def device_info(self) -> DeviceInfo:
-        """Return DeviceInfo with serial_number from coordinator (Codice Impianto).
-
-        serial_number is updated automatically on every coordinator refresh
-        because this is a @property, not _attr_device_info.
-        """
-        plant = self.coordinator.plant_code or None
-        version = self.coordinator.cloud_version or None
-        return DeviceInfo(
-            identifiers={(DOMAIN, "newlab_hub")},
-            name="Newlab LED Controller",
-            manufacturer="Newlab",
-            model="Smart LED Cloud",
-            sw_version=version,
-            configuration_url="https://smarthome.newlablight.com",
-            serial_number=plant,
-        )
+    def device_info(self):
+        """Delegate to coordinator.hub_device_info (single source of truth)."""
+        return self.coordinator.hub_device_info
 
     # ── Internal helper ────────────────────────────────────────────────────
 

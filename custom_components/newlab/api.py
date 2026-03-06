@@ -1,6 +1,7 @@
-"""Compatibility facade for the Newlab API package.
+"""Public facade for the Newlab API layer.
 
-Public imports are kept stable for the rest of the integration and tests.
+All imports used by the rest of the integration (coordinator, entities,
+config_flow) go through this module so internal refactors don't break callers.
 """
 
 from .client import NewlabAPI
@@ -11,7 +12,7 @@ from .models import (
     NewlabParseError,
     NewlabSystemInfo,
 )
-from .parsers import _parse_groups, _parse_system_info
+from .parsers import parse_groups, parse_system_info
 
 __all__ = [
     "NewlabAPI",
@@ -20,6 +21,6 @@ __all__ = [
     "NewlabGroup",
     "NewlabParseError",
     "NewlabSystemInfo",
-    "_parse_groups",
-    "_parse_system_info",
+    "parse_groups",
+    "parse_system_info",
 ]

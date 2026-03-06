@@ -1,9 +1,12 @@
+"""Unit tests for the NewlabAPI HTTP client."""
+
 from __future__ import annotations
 
 import asyncio
 import importlib
 from types import SimpleNamespace
 
+import pytest
 
 client_module = importlib.import_module("custom_components.newlab.client")
 models_module = importlib.import_module("custom_components.newlab.models")
@@ -60,11 +63,17 @@ class _LoginSession:
 
     def get(self, _url: str):
         html = '<input name="csrfmiddlewaretoken" value="csrf123" />'
-        return _RequestCtx(_Response(status=200, text=html, url="https://smarthome.newlablight.com/registrationwelcome"))
+        return _RequestCtx(_Response(
+            status=200, text=html,
+            url="https://smarthome.newlablight.com/registrationwelcome",
+        ))
 
     def post(self, _url: str, data=None, headers=None, allow_redirects=True):
         self._jar.extend([_Cookie("csrftoken", "csrf-cookie"), _Cookie("sessionid", "sid-1")])
-        return _RequestCtx(_Response(status=200, text="", url="https://smarthome.newlablight.com/registrationhome"))
+        return _RequestCtx(_Response(
+            status=200, text="",
+            url="https://smarthome.newlablight.com/registrationhome",
+        ))
 
 
 def test_login_success_sets_cookies(monkeypatch) -> None:
@@ -80,12 +89,8 @@ def test_login_success_sets_cookies(monkeypatch) -> None:
 
 def test_get_groups_requires_authentication() -> None:
     api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
-    try:
+    with pytest.raises(models_module.NewlabAuthError):
         asyncio.run(api.get_groups())
-    except models_module.NewlabAuthError:
-        pass
-    else:
-        raise AssertionError("Expected NewlabAuthError")
 
 
 def test_get_groups_success_parses_data() -> None:
@@ -97,7 +102,10 @@ def test_get_groups_success_parses_data() -> None:
     <input id="range_2" value="80" />
     """
     session = _RuntimeSession(
-        get_resp=_Response(status=200, text=html, url="https://smarthome.newlablight.com/registrationhome"),
+        get_resp=_Response(
+            status=200, text=html,
+            url="https://smarthome.newlablight.com/registrationhome",
+        ),
         post_resp=_Response(status=200, text="OK"),
     )
     api = client_module.NewlabAPI("user", "pw", session=session)
@@ -113,7 +121,10 @@ def test_get_groups_success_parses_data() -> None:
 
 def test_set_light_and_refresh() -> None:
     session = _RuntimeSession(
-        get_resp=_Response(status=200, text="", url="https://smarthome.newlablight.com/registrationhome"),
+        get_resp=_Response(
+            status=200, text="",
+            url="https://smarthome.newlablight.com/registrationhome",
+        ),
         post_resp=_Response(status=200, text="OK"),
     )
     api = client_module.NewlabAPI("user", "pw", session=session)

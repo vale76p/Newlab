@@ -10,10 +10,14 @@ src = ["custom_components", "tests"]
 
 [tool.ruff.lint]
 select = [
-  "E",
-  "F",
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+  "SIM", # flake8-simplify
 ]
-ignore = ["E501"]
+ignore = ["E501", "UP017"]  # UP017: datetime.UTC requires Python 3.11+; tests run on 3.9
 
 [tool.ruff.format]
 quote-style = "double"

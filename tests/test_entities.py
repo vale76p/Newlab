@@ -1,10 +1,11 @@
+"""Unit tests for entity platforms (light, number, sensor, button)."""
+
 from __future__ import annotations
 
 import asyncio
 import importlib
 from datetime import timedelta
 from types import SimpleNamespace
-
 
 api_module = importlib.import_module("custom_components.newlab.api")
 button_module = importlib.import_module("custom_components.newlab.button")
@@ -28,6 +29,11 @@ class _FakeAPI:
 
 def _coordinator_with_group() -> SimpleNamespace:
     group = api_module.NewlabGroup(id_group=1, name="Cucina", pwm=20)
+    hub_device_info = {
+        "identifiers": {("newlab", "newlab_hub")},
+        "name": "Newlab LED Controller",
+        "manufacturer": "Newlab",
+    }
     return SimpleNamespace(
         data={1: group},
         api=_FakeAPI(),
@@ -36,6 +42,7 @@ def _coordinator_with_group() -> SimpleNamespace:
         cloud_last_sync="Feb 16, 2026",
         last_sync_formatted="Lunedì 16 Febbraio 2026 19:01",
         update_interval=timedelta(seconds=10),
+        hub_device_info=hub_device_info,
         async_request_refresh=lambda: None,
         async_add_listener=lambda _listener: None,
     )

@@ -64,8 +64,9 @@ custom_components/newlab/
 
 ### `parsers.py`
 - Pure parsing logic from HTML string input.
-- `_parse_groups(html)` -> `dict[int, NewlabGroup]`
-- `_parse_system_info(html)` -> `NewlabSystemInfo`
+- `parse_groups(html)` → `dict[int, NewlabGroup]`
+- `parse_system_info(html)` → `NewlabSystemInfo`
+- Includes per-strategy DEBUG logging and ERROR log before raising `NewlabParseError`.
 
 ### `models.py`
 - Data models:
@@ -108,7 +109,7 @@ custom_components/newlab/
 
 Both share:
 1. stable ID by `id_group`
-2. same hub `DeviceInfo`
+2. same hub `DeviceInfo` (delegated to `coordinator.hub_device_info`)
 3. availability tied to coordinator + offline flag
 4. optimistic state update after successful command
 
@@ -131,4 +132,9 @@ Current CI workflow (`.github/workflows/validate.yml`) runs:
 3. coverage report generation (`coverage.xml`, `htmlcov/`)
 4. artifact upload
 
-Current measured total coverage: **84%**.
+Current measured total coverage: **87%** (31 tests).
+Key coverage highlights:
+- `parsers.py`: 100%
+- `models.py`: 100%
+- `api.py`: 100%
+- `const.py`: 100%

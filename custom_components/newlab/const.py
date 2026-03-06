@@ -10,9 +10,7 @@ HOME_URL = f"{BASE_URL}/registrationhome"
 CONTROL_URL = f"{BASE_URL}/smarthome/newplantsendcommand"
 REFRESH_URL = f"{BASE_URL}/smarthome/plantrefresh"
 
-# Config entry keys
-CONF_USERNAME = "username"
-CONF_PASSWORD = "password"
+# Config entry keys (CONF_USERNAME / CONF_PASSWORD come from homeassistant.const)
 CONF_POLL_INTERVAL = "poll_interval"
 
 # Defaults
@@ -39,10 +37,6 @@ READ_TIMEOUT = 15
 # Template: use .format(gid=<int>).  Example result: "Group 3"
 # Users can rename entities in HA at any time; unique_id is always stable.
 GROUP_NAME_FALLBACK = "Group {gid}"
-
-# Data keys stored in hass.data[DOMAIN]
-DATA_COORDINATOR = "coordinator"
-DATA_API = "api"
 
 # Max HTML chars dumped to log at DEBUG level (avoids flooding the log file)
 DEBUG_HTML_MAX_CHARS = 4000
