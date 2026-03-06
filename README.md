@@ -2,7 +2,7 @@
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![Version](https://img.shields.io/badge/version-1.0.1-green.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](README.md)
 
 Custom integration for controlling **Newlab LED** lighting zones via the
 `smarthome.newlablight.com` cloud platform.
@@ -46,17 +46,11 @@ All entities are grouped under a single **Newlab LED Controller** device card in
 
 ---
 
-## Default Zones
+## Zone Discovery
 
-| Zone name | id_group |
-|-----------|----------|
-| Cucina    |    1     |
-| Soggiorno |    2     |
-| Bagno     |    3     |
-
-Zone names are read dynamically from the cloud. If a zone has no label in the cloud HTML,
-the fallback name is `Group <N>`. You can rename entities in HA at any time — the unique ID
-is always stable.
+Zones are discovered dynamically from the cloud HTML — no hardcoded list.
+If a zone has no label, the fallback name is `Group <N>`.
+You can rename entities in HA at any time — the unique ID is always stable.
 
 ---
 
@@ -185,6 +179,10 @@ Then check **Settings → System → Logs** and filter by `newlab`.
 ---
 
 ## Changelog
+
+### [1.0.2] — 2026-03-06
+- **Fix:** i sensori diagnostici "Codice Impianto" e "Ultima Sincronizzazione Cloud" mostravano sempre "Sconosciuto" perché le regex cercavano le etichette italiane (`Codice Impianto`, `Ultima sincronizzazione`) ma il cloud Newlab risponde in inglese (`Plant Id`, `Last syncronization`). Le regex ora supportano entrambe le lingue
+- **Aggiunto:** brand assets (`icon.png`, `logo.png`) per HACS / HA 2026.3+
 
 ### [1.0.1] — 2026-03-05
 - **Fix:** sensori diagnostici mostravano "non disponibile" invece di "sconosciuto" quando il valore non veniva trovato nell'HTML del cloud

@@ -30,8 +30,14 @@ Label strategies (tried in order for each group):
   L1 — <label for="range_3">Zone name</label>
   L2 — aria-label="Zone name" on the input tag itself
   L3 — title="Zone name" on the input tag itself
-  L4 — closest preceding <td> / <th> / <span> text node
+  L4 — closest preceding <td> / <th> / <span> text node  ← used in production
   Fallback — "Group {N}"  (neutral, user can rename in HA)
+
+System-level metadata (from the same page):
+  EN: <p>Plant Id: <b>y8gd189un...</b></p>
+      <p>Last syncronization: <b>Feb. 16, 2026, 7:01 p.m.</b></p>
+  IT: <p>Codice Impianto: <b>...</b></p>
+      <p>Ultima sincronizzazione: <b>Lunedì 16 Febbraio 2026 19:01</b></p>
 
 Control
 -------
@@ -105,8 +111,8 @@ class NewlabSystemInfo:
 
     plant_code      — installation/plant identifier (e.g. "y8gd189un32851ykg82z6ksl71g4lz")
     cloud_last_sync — last sync timestamp as shown by the Newlab cloud
-                      (e.g. "Lunedì 16 Febbraio 2026 19:01") — this is the cloud's own value,
-                      NOT the HA polling timestamp.
+                      EN: "Feb. 16, 2026, 7:01 p.m."   IT: "Lunedì 16 Febbraio 2026 19:01"
+                      This is the cloud's own value, NOT the HA polling timestamp.
     cloud_version   — firmware/app version shown in the page title (e.g. "3.47")
     """
 
@@ -172,20 +178,37 @@ _RE_CSRF = re.compile(
 _RE_OFFLINE_CLASS = re.compile(r'class=["\'][^"\']*\boffline\b', re.IGNORECASE)
 
 # Cloud metadata — extracted from /registrationhome HTML
-# Production HTML: <p>Ultima sincronizzazione: <b>Lunedì 16 Febbraio 2026 19:01</b></p>
+#
+# The cloud uses Django i18n; depending on Accept-Language the labels are:
+#   EN: "Plant Id"  /  "Last syncronization"  (NB: typo in original HTML)
+#   IT: "Codice Impianto"  /  "Ultima sincronizzazione"
+#
+# Production HTML (EN — current default):
+#   <p>Plant Id: <b>y8gd189un32851ykg82z6ksl71g4lz</b></p>
+#   <p>Last syncronization: <b>Feb. 16, 2026, 7:01 p.m.</b></p>
+#   <title>Newlab Smart Home - Ver. 3.47</title>
+#
+# Both <b> and <strong> are accepted. .{0,60}? with re.DOTALL tolerates any
+# separator (spaces, &nbsp;, <br/>) between label and value tag.
+
 _RE_CLOUD_LAST_SYNC = re.compile(
-    r'Ultima\s+sincronizzazione:\s*<b>([^<]+)</b>',
-    re.IGNORECASE,
+    r'(?:Last\s+sync(?:h?ronization)|Ultima\s+sincronizzazione)\b'
+    r'.{0,60}?<(?:b|strong)[^>]*>\s*([^<]{4,80}?)\s*</(?:b|strong)>',
+    re.IGNORECASE | re.DOTALL,
 )
+
 # Production HTML: <title>Newlab Smart Home - Ver. 3.47</title>
 _RE_CLOUD_VERSION = re.compile(r'Ver\.\s*([\d.]+)', re.IGNORECASE)
 
-# ── Plant code / Codice Impianto — tried in order ─────────────────────────────
-# Patterns are from most to least specific; first match wins.
+# ── Plant code — tried in order, first match wins ────────────────────────────
 _RE_PLANT_CODE_PATTERNS: list[re.Pattern] = [
-    # Pattern 1 — EXACT production HTML (most specific, always try first):
-    #   <p>Codice Impianto: <b>y8gd189un32851ykg82z6ksl71g4lz</b></p>
-    re.compile(r'Codice\s+Impianto:\s*<b>([^<]+)</b>', re.IGNORECASE),
+    # Pattern 1 — EN: <p>Plant Id: <b>y8gd189un32851ykg82z6ksl71g4lz</b></p>
+    #              IT: <p>Codice Impianto: <b>...</b></p>
+    re.compile(
+        r'(?:Plant\s+Id|Codice\s+Impianto)\b'
+        r'.{0,60}?<(?:b|strong)[^>]*>\s*([^<]{3,80}?)\s*</(?:b|strong)>',
+        re.IGNORECASE | re.DOTALL,
+    ),
     # Pattern 2 — JavaScript variable: var plant_id = "12345";
     re.compile(
         r'var\s+(?:plant|impianto)(?:_?(?:id|code|Id|Code))?\s*=\s*["\']([A-Za-z0-9_\-]{3,})["\']',
@@ -199,11 +222,6 @@ _RE_PLANT_CODE_PATTERNS: list[re.Pattern] = [
     # Pattern 4 — data-attribute: data-plant-id="..." / data-impianto="..."
     re.compile(
         r'data-(?:plant[-_]?(?:id|code)|impianto[-_]?(?:id|codice))=["\']([A-Za-z0-9_\-]{3,})["\']',
-        re.IGNORECASE,
-    ),
-    # Pattern 5 — URL segment after /smarthome/ (not a command keyword)
-    re.compile(
-        r'/smarthome/(?!newplant|send|plantrefresh)([A-Za-z0-9]{4,})/',
         re.IGNORECASE,
     ),
 ]
@@ -406,6 +424,7 @@ def _parse_groups(html: str) -> dict[int, NewlabGroup]:
     )
 
 
+
 def _parse_system_info(html: str) -> NewlabSystemInfo:
     """Extract system-level info from the /registrationhome HTML.
 
@@ -413,6 +432,7 @@ def _parse_system_info(html: str) -> NewlabSystemInfo:
       - plant_code      via _RE_PLANT_CODE_PATTERNS (first match wins)
       - cloud_last_sync via _RE_CLOUD_LAST_SYNC
       - cloud_version   via _RE_CLOUD_VERSION
+
     """
     info = NewlabSystemInfo()
 
@@ -428,7 +448,7 @@ def _parse_system_info(html: str) -> NewlabSystemInfo:
             )
             break
     if not info.plant_code:
-        _LOGGER.debug(
+        _LOGGER.warning(
             "[discovery] codice_impianto: all %d patterns found nothing",
             len(_RE_PLANT_CODE_PATTERNS),
         )
@@ -439,7 +459,7 @@ def _parse_system_info(html: str) -> NewlabSystemInfo:
         info.cloud_last_sync = m.group(1).strip()
         _LOGGER.debug("[discovery] cloud_last_sync: %r", info.cloud_last_sync)
     else:
-        _LOGGER.debug("[discovery] cloud_last_sync: not found in HTML")
+        _LOGGER.warning("[discovery] cloud_last_sync: not found in HTML")
 
     # ── Cloud version ────────────────────────────────────────────────────────
     m = _RE_CLOUD_VERSION.search(html)
