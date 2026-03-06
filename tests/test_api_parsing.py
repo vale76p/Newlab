@@ -101,7 +101,7 @@ def test_parse_system_info_english_labels() -> None:
     <html>
       <head><title>Newlab Smart Home - Ver. 3.47</title></head>
       <body>
-        <p>Plant Id: <b>y8gd189un32851ykg82z6ksl71g4lz</b></p>
+        <p>Plant Id: <b>plant_code_example_001</b></p>
         <p>Last syncronization: <b>Feb. 16, 2026, 7:01 p.m.</b></p>
       </body>
     </html>
@@ -109,7 +109,7 @@ def test_parse_system_info_english_labels() -> None:
 
     info = api._parse_system_info(html)
 
-    assert info.plant_code == "y8gd189un32851ykg82z6ksl71g4lz"
+    assert info.plant_code == "plant_code_example_001"
     assert info.cloud_last_sync == "Feb. 16, 2026, 7:01 p.m."
     assert info.cloud_version == "3.47"
 
@@ -119,7 +119,7 @@ def test_parse_system_info_italian_labels() -> None:
     <html>
       <head><title>Newlab Smart Home - Ver. 3.48</title></head>
       <body>
-        <p>Codice Impianto: <strong>impianto-123</strong></p>
+        <p>Codice Impianto: <strong>plant_code_example_002</strong></p>
         <p>Ultima sincronizzazione: <b>Lunedì 16 Febbraio 2026 19:01</b></p>
       </body>
     </html>
@@ -127,6 +127,6 @@ def test_parse_system_info_italian_labels() -> None:
 
     info = api._parse_system_info(html)
 
-    assert info.plant_code == "impianto-123"
+    assert info.plant_code == "plant_code_example_002"
     assert info.cloud_last_sync == "Lunedì 16 Febbraio 2026 19:01"
     assert info.cloud_version == "3.48"

@@ -91,7 +91,7 @@ def test_get_groups_requires_authentication() -> None:
 def test_get_groups_success_parses_data() -> None:
     html = """
     <title>Newlab Smart Home - Ver. 3.47</title>
-    <p>Plant Id: <b>plant-1</b></p>
+    <p>Plant Id: <b>plant_code_example_003</b></p>
     <p>Last syncronization: <b>Feb. 16, 2026, 7:01 p.m.</b></p>
     <label for="range_2">Soggiorno</label>
     <input id="range_2" value="80" />
@@ -108,7 +108,7 @@ def test_get_groups_success_parses_data() -> None:
 
     assert groups[2].name == "Soggiorno"
     assert groups[2].pwm == 80
-    assert api.system_info.plant_code == "plant-1"
+    assert api.system_info.plant_code == "plant_code_example_003"
 
 
 def test_set_light_and_refresh() -> None:

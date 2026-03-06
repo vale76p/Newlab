@@ -10,6 +10,14 @@ No changes yet.
 
 ---
 
+## [1.1.1] — 2026-03-06
+
+### Fixed
+
+- Minor bug fixing and documentation/test consistency updates.
+
+---
+
 ## [1.1.0] — 2026-03-06
 
 ### Changed

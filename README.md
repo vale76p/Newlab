@@ -2,7 +2,7 @@
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![Version](https://img.shields.io/badge/version-1.1.0-green.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-1.1.1-green.svg)](README.md)
 [![Validate](https://github.com/vale76p/Newlab/actions/workflows/validate.yml/badge.svg)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
 [![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
 

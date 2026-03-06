@@ -31,7 +31,7 @@ def _coordinator_with_group() -> SimpleNamespace:
     return SimpleNamespace(
         data={1: group},
         api=_FakeAPI(),
-        plant_code="plant-1",
+        plant_code="plant_code_example_004",
         cloud_version="3.47",
         cloud_last_sync="Feb 16, 2026",
         last_sync_formatted="Lunedì 16 Febbraio 2026 19:01",
@@ -62,7 +62,7 @@ def test_light_available_and_extra_attrs() -> None:
     entity = light_module.NewlabLight(coordinator, coordinator.data[1])
     attrs = entity.extra_state_attributes
     assert attrs["id_group"] == 1
-    assert attrs["codice_impianto"] == "plant-1"
+    assert attrs["codice_impianto"] == "plant_code_example_004"
     assert attrs["polling_interval_s"] == 10
 
     coordinator.data[1].is_offline = True
@@ -85,7 +85,7 @@ def test_sensor_values() -> None:
     ver = sensor_module.NewlabCloudVersionSensor(coordinator)
     sync = sensor_module.NewlabCloudSyncSensor(coordinator)
 
-    assert plant.native_value == "plant-1"
+    assert plant.native_value == "plant_code_example_004"
     assert ver.native_value == "3.47"
     assert sync.native_value == "Feb 16, 2026"
 

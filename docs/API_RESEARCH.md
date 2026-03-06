@@ -123,10 +123,10 @@ Regexes in parser support both.
 
 ```html
 <!-- EN (production, Accept-Language: en) -->
-<p>Plant Id: <b>y8gd189un32851ykg82z6ksl71g4lz</b></p>
+<p>Plant Id: <b>plant_code_example_001</b></p>
 
 <!-- IT (Accept-Language: it) -->
-<p>Codice Impianto: <b>y8gd189un32851ykg82z6ksl71g4lz</b></p>
+<p>Codice Impianto: <b>plant_code_example_001</b></p>
 ```
 
 ```python
