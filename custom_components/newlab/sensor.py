@@ -82,9 +82,8 @@ class NewlabPlantCodeSensor(_NewlabHubSensor):
     """Diagnostic sensor: Codice Impianto (plant/installation identifier).
 
     Shown in the Diagnostics section of the device card.
-    Value is extracted from the cloud HTML on every poll.
-    State is 'unknown' (not 'unavailable') if the value cannot be parsed from HTML,
-    which can happen on the first poll or if the page structure changed.
+    Value is extracted from the cloud HTML once at integration load (first successful poll).
+    State is 'unknown' (not 'unavailable') if the value cannot be parsed from HTML.
     """
 
     _attr_unique_id = "newlab_hub_plant_code"

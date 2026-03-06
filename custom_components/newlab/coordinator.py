@@ -105,7 +105,8 @@ class NewlabCoordinator(DataUpdateCoordinator[dict[int, NewlabGroup]]):
         """Fetch latest light state from the Newlab cloud.
 
         Handles session expiry transparently with a single re-login attempt.
-        Updates plant_code and last_sync_time on every successful poll.
+        Updates last_sync_time on every successful poll.
+        System info (plant_code, cloud_version, cloud_last_sync) is fetched only once.
         """
         self._poll_count += 1
         t0 = time.monotonic()
@@ -165,14 +166,21 @@ class NewlabCoordinator(DataUpdateCoordinator[dict[int, NewlabGroup]]):
             raise UpdateFailed(f"HTML parse error: {exc}") from exc
 
     def _on_success(self, groups: dict[int, NewlabGroup]) -> None:
-        """Update cached metadata after a successful poll."""
+        """Update cached metadata after a successful poll.
+
+        System info (plant_code, cloud_version, cloud_last_sync) is extracted
+        only once by the API client; here we just copy whatever was found.
+        """
         self.last_sync_time = dt_util.now()  # HA local timezone
         info = self.api.system_info
 
-        prev_code = self.plant_code
-        self.plant_code = info.plant_code
-        if self.plant_code and self.plant_code != prev_code:
-            _LOGGER.info("[coordinator] codice_impianto discovered: %r", self.plant_code)
-
-        self.cloud_last_sync = info.cloud_last_sync
-        self.cloud_version = info.cloud_version
+        # Copy system info from API (only changes on first successful extraction)
+        if info.plant_code and not self.plant_code:
+            self.plant_code = info.plant_code
+            _LOGGER.info("[coordinator] codice_impianto: %r", self.plant_code)
+        if info.cloud_version and not self.cloud_version:
+            self.cloud_version = info.cloud_version
+            _LOGGER.info("[coordinator] cloud_version: %r", self.cloud_version)
+        if info.cloud_last_sync and not self.cloud_last_sync:
+            self.cloud_last_sync = info.cloud_last_sync
+            _LOGGER.info("[coordinator] cloud_last_sync: %r", self.cloud_last_sync)

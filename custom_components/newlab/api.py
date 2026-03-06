@@ -33,7 +33,7 @@ Label strategies (tried in order for each group):
   L4 — closest preceding <td> / <th> / <span> text node  ← used in production
   Fallback — "Group {N}"  (neutral, user can rename in HA)
 
-System-level metadata (from the same page):
+System-level metadata (from the same page, parsed ONCE at first successful poll):
   EN: <p>Plant Id: <b>y8gd189un...</b></p>
       <p>Last syncronization: <b>Feb. 16, 2026, 7:01 p.m.</b></p>
   IT: <p>Codice Impianto: <b>...</b></p>
@@ -501,8 +501,9 @@ class NewlabAPI:
         self._session = session
         self._csrf_token: Optional[str] = None
         self._session_id: Optional[str] = None
-        # System-level info updated on every get_groups() call
+        # System-level info — fetched once on first successful poll, then cached
         self.system_info: NewlabSystemInfo = NewlabSystemInfo()
+        self._system_info_fetched: bool = False
 
     # ── Public properties ──────────────────────────────────────────────────
 
@@ -731,10 +732,27 @@ class NewlabAPI:
 
         groups = _parse_groups(html)
 
-        # Also extract plant code (best-effort, does not raise on failure)
-        self.system_info = _parse_system_info(html)
-        if self.system_info.plant_code:
-            _LOGGER.debug("[poll] codice_impianto=%r", self.system_info.plant_code)
+        # System info (plant code, cloud version, last sync) — parsed only once.
+        # Retries on subsequent polls only if the first extraction got empty values.
+        if not self._system_info_fetched:
+            self.system_info = _parse_system_info(html)
+            has_data = bool(
+                self.system_info.plant_code
+                or self.system_info.cloud_version
+                or self.system_info.cloud_last_sync
+            )
+            if has_data:
+                self._system_info_fetched = True
+                _LOGGER.info(
+                    "[poll] system_info fetched (one-time): plant=%r version=%r sync=%r",
+                    self.system_info.plant_code,
+                    self.system_info.cloud_version,
+                    self.system_info.cloud_last_sync,
+                )
+            else:
+                _LOGGER.debug(
+                    "[poll] system_info still empty — will retry on next poll"
+                )
 
         elapsed = time.monotonic() - t0
         _LOGGER.debug(
