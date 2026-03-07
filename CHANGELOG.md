@@ -6,7 +6,22 @@ All notable changes to the Newlab LED integration are documented here.
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- **`ConfigEntryAuthFailed` / `ConfigEntryNotReady`** — `async_setup_entry` now raises proper
+  HA exceptions instead of `return False`, enabling automatic credential re-prompt and retry UI.
+- **Options flow precedence fix** — poll interval is now read from `entry.options` before
+  `entry.data`, so a configured override is preserved after integration reload.
+- **HTTP client edge-case tests** — 14 new tests covering login failures, HTTP errors, unauthenticated
+  calls, and `ensure_authenticated`; client.py coverage raised to 91%.
+- **HTML parser contract tests** — 40 tests across 9 fixture files covering strategies A/B/C/D,
+  EN/IT i18n, offline detection, parse errors, and all label resolution fallbacks; parsers.py at 100%.
+- **mypy gradual type checking** — `[tool.mypy]` section in `pyproject.toml`; CI blocks on type errors.
+- **Extended ruff rules** — added `C4`, `PIE`, `RET`, `TC` rule sets.
+- **CI Python matrix** — `validate.yml` now runs on Python 3.11 and 3.12.
+- **Coverage gate** — CI fails if total coverage drops below 85%.
+- **`release.yml`** — automated GitHub Release on `v*.*.*` tags, with manifest version and
+  CHANGELOG entry validation.
 
 ---
 

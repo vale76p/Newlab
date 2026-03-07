@@ -119,22 +119,45 @@ Both share:
 - `sensor.NewlabCloudSyncSensor`
 - `button.NewlabRefreshButton`
 
+## Error Handling
+
+### Setup errors (`__init__.py`)
+
+`async_setup_entry` raises HA-native exceptions instead of returning `False`:
+
+| Exception | Cause | HA behaviour |
+|-----------|-------|-------------|
+| `ConfigEntryAuthFailed` | `NewlabAuthError` from login | Shows re-auth prompt; entry disabled |
+| `ConfigEntryNotReady` | `NewlabConnectionError` from login | HA retries with exponential back-off |
+
+### Runtime errors (coordinator)
+
+During polling, `NewlabAuthError` triggers automatic re-authentication + single retry.
+Persistent failure raises `UpdateFailed` and HA marks all entities unavailable.
+
 ## Testing and Quality
 
 Repository quality stack:
-1. `ruff` for linting
-2. `pytest` for unit tests
-3. `pytest-cov` for coverage
+1. `ruff` — linting (E, F, I, B, UP, SIM, C4, PIE, RET, TC)
+2. `mypy` — gradual type checking (`ignore_missing_imports`, `check_untyped_defs`, `warn_return_any`)
+3. `pytest` — 33 unit tests (no real HA required — hand-rolled stubs in `tests/conftest.py`)
+4. `pytest-cov` — coverage gate ≥ 85% enforced in CI
 
-Current CI workflow (`.github/workflows/validate.yml`) runs:
-1. lint
-2. tests
-3. coverage report generation (`coverage.xml`, `htmlcov/`)
-4. artifact upload
+CI (`.github/workflows/validate.yml`) matrix: Python 3.11, 3.12. Steps per version:
+1. `ruff check .`
+2. `mypy custom_components/newlab`
+3. `pytest --cov --cov-fail-under=85`
+4. coverage report artifact upload (Python 3.12 only)
 
-Current measured total coverage: **87%** (31 tests).
-Key coverage highlights:
-- `parsers.py`: 100%
-- `models.py`: 100%
-- `api.py`: 100%
+Measured total coverage: **≥ 90%** (33 tests).
+Key highlights:
+- `parsers.py`: 100% — 40 contract tests against 9 versioned HTML fixtures
+- `client.py`: 91% — 18 tests including all edge cases
+- `models.py`, `api.py`: 100%
+
+Test fixtures are versioned in `tests/fixtures/` and cover:
+- Strategies A/B/C/D for group input detection
+- English and Italian i18n variants
+- Offline zone detection
+- All label resolution fallbacks (label, aria-label, title, td_text, fallback)
 - `const.py`: 100%
