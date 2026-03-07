@@ -133,3 +133,199 @@ def test_set_light_and_refresh() -> None:
 
     assert asyncio.run(api.set_light(1, 99)) is True
     assert asyncio.run(api.async_refresh_plant()) is True
+
+
+# ── Edge-case tests ───────────────────────────────────────────────────────────
+
+
+class _FailWelcomeSession:
+    """Welcome page returns non-200."""
+    def __init__(self, cookie_jar=None, **kwargs):
+        self._jar = cookie_jar or []
+
+    async def __aenter__(self): return self
+    async def __aexit__(self, *args): pass
+
+    def get(self, _url: str):
+        return _RequestCtx(_Response(status=500, text="", url=_url))
+
+    def post(self, _url: str, data=None, headers=None, allow_redirects=True):
+        return _RequestCtx(_Response(status=200, text="", url=_url))
+
+
+class _NoCsrfSession:
+    """Welcome page HTML has no csrfmiddlewaretoken."""
+    def __init__(self, cookie_jar=None, **kwargs):
+        self._jar = cookie_jar or []
+
+    async def __aenter__(self): return self
+    async def __aexit__(self, *args): pass
+
+    def get(self, _url: str):
+        return _RequestCtx(_Response(status=200, text="<html>no csrf here</html>", url=_url))
+
+    def post(self, _url: str, data=None, headers=None, allow_redirects=True):
+        return _RequestCtx(_Response(status=200, text="", url=_url))
+
+
+class _RedirectToLoginSession:
+    """POST login redirects to the login URL (bad credentials)."""
+    def __init__(self, cookie_jar=None, **kwargs):
+        self._jar = cookie_jar or []
+
+    async def __aenter__(self): return self
+    async def __aexit__(self, *args): pass
+
+    def get(self, _url: str):
+        html = '<input name="csrfmiddlewaretoken" value="csrf123" />'
+        return _RequestCtx(_Response(status=200, text=html, url=_url))
+
+    def post(self, _url: str, data=None, headers=None, allow_redirects=True):
+        return _RequestCtx(_Response(
+            status=200, text="",
+            url="https://smarthome.newlablight.com/registrationlogin",
+        ))
+
+
+class _NoCookiesSession:
+    """POST succeeds but jar stays empty (no session cookies issued)."""
+    def __init__(self, cookie_jar=None, **kwargs):
+        self._jar = cookie_jar or []
+
+    async def __aenter__(self): return self
+    async def __aexit__(self, *args): pass
+
+    def get(self, _url: str):
+        html = '<input name="csrfmiddlewaretoken" value="csrf123" />'
+        return _RequestCtx(_Response(status=200, text=html, url=_url))
+
+    def post(self, _url: str, data=None, headers=None, allow_redirects=True):
+        # deliberately no cookies written to jar
+        return _RequestCtx(_Response(
+            status=200, text="",
+            url="https://smarthome.newlablight.com/registrationhome",
+        ))
+
+
+def test_login_fails_on_welcome_non_200(monkeypatch) -> None:
+    monkeypatch.setattr(client_module.aiohttp, "CookieJar", lambda unsafe: [])
+    monkeypatch.setattr(client_module.aiohttp, "ClientSession", _FailWelcomeSession)
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    with pytest.raises(models_module.NewlabConnectionError):
+        asyncio.run(api.login())
+
+
+def test_login_fails_on_missing_csrf(monkeypatch) -> None:
+    monkeypatch.setattr(client_module.aiohttp, "CookieJar", lambda unsafe: [])
+    monkeypatch.setattr(client_module.aiohttp, "ClientSession", _NoCsrfSession)
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    with pytest.raises(models_module.NewlabParseError):
+        asyncio.run(api.login())
+
+
+def test_login_fails_on_redirect_to_login(monkeypatch) -> None:
+    monkeypatch.setattr(client_module.aiohttp, "CookieJar", lambda unsafe: [])
+    monkeypatch.setattr(client_module.aiohttp, "ClientSession", _RedirectToLoginSession)
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    with pytest.raises(models_module.NewlabAuthError):
+        asyncio.run(api.login())
+
+
+def test_login_fails_on_missing_cookies(monkeypatch) -> None:
+    monkeypatch.setattr(client_module.aiohttp, "CookieJar", lambda unsafe: [])
+    monkeypatch.setattr(client_module.aiohttp, "ClientSession", _NoCookiesSession)
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    with pytest.raises(models_module.NewlabAuthError):
+        asyncio.run(api.login())
+
+
+def test_get_groups_raises_auth_error_on_302() -> None:
+    session = _RuntimeSession(
+        get_resp=_Response(status=302, text="", url="https://smarthome.newlablight.com/registrationhome"),
+        post_resp=_Response(status=200, text="OK"),
+    )
+    api = client_module.NewlabAPI("user", "pw", session=session)
+    api._csrf_token = "a"
+    api._session_id = "b"
+    with pytest.raises(models_module.NewlabAuthError):
+        asyncio.run(api.get_groups())
+
+
+def test_get_groups_raises_connection_error_on_500() -> None:
+    session = _RuntimeSession(
+        get_resp=_Response(status=500, text="", url="https://smarthome.newlablight.com/registrationhome"),
+        post_resp=_Response(status=200, text="OK"),
+    )
+    api = client_module.NewlabAPI("user", "pw", session=session)
+    api._csrf_token = "a"
+    api._session_id = "b"
+    with pytest.raises(models_module.NewlabConnectionError):
+        asyncio.run(api.get_groups())
+
+
+def test_set_light_returns_false_unauthenticated() -> None:
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    assert asyncio.run(api.set_light(1, 100)) is False
+
+
+def test_set_light_returns_false_on_non_200() -> None:
+    session = _RuntimeSession(
+        get_resp=_Response(status=200, text="", url="https://smarthome.newlablight.com/registrationhome"),
+        post_resp=_Response(status=500, text="error"),
+    )
+    api = client_module.NewlabAPI("user", "pw", session=session)
+    api._csrf_token = "a"
+    api._session_id = "b"
+    assert asyncio.run(api.set_light(1, 100)) is False
+
+
+def test_async_refresh_plant_returns_false_unauthenticated() -> None:
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    assert asyncio.run(api.async_refresh_plant()) is False
+
+
+def test_async_refresh_plant_returns_false_on_unexpected_body() -> None:
+    session = _RuntimeSession(
+        get_resp=_Response(status=200, text="", url="https://smarthome.newlablight.com/registrationhome"),
+        post_resp=_Response(status=200, text="ERROR"),
+    )
+    api = client_module.NewlabAPI("user", "pw", session=session)
+    api._csrf_token = "a"
+    api._session_id = "b"
+    assert asyncio.run(api.async_refresh_plant()) is False
+
+
+def test_is_authenticated_false_when_no_cookies() -> None:
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    assert api.is_authenticated is False
+
+
+def test_cookie_header_empty_when_not_authenticated() -> None:
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    assert api.cookie_header == ""
+
+
+def test_ensure_authenticated_calls_login_when_not_auth(monkeypatch) -> None:
+    login_called = []
+
+    async def _mock_login() -> None:
+        login_called.append(True)
+
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    monkeypatch.setattr(api, "login", _mock_login)
+    asyncio.run(api.ensure_authenticated())
+    assert len(login_called) == 1
+
+
+def test_ensure_authenticated_skips_login_when_already_auth(monkeypatch) -> None:
+    login_called = []
+
+    async def _mock_login() -> None:
+        login_called.append(True)
+
+    api = client_module.NewlabAPI("user", "pw", session=SimpleNamespace())
+    api._csrf_token = "a"
+    api._session_id = "b"
+    monkeypatch.setattr(api, "login", _mock_login)
+    asyncio.run(api.ensure_authenticated())
+    assert len(login_called) == 0
