@@ -128,7 +128,7 @@ class NewlabLight(CoordinatorEntity[NewlabCoordinator], LightEntity):
     @property
     def _current_group(self) -> NewlabGroup | None:
         """Return the latest group state from the coordinator cache."""
-        return self.coordinator.data.get(self._id_group)
+        return self.coordinator.data.get(self._id_group)  # type: ignore[no-any-return]
 
     # ── LightEntity properties ─────────────────────────────────────────────
 

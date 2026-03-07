@@ -103,7 +103,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         _LOGGER.debug("[setup] entry_id=%s unloaded OK", entry.entry_id)
-    return unloaded
+    return unloaded  # type: ignore[no-any-return]
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
