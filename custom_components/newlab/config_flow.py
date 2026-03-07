@@ -39,7 +39,7 @@ STEP_USER_SCHEMA = vol.Schema(
 )
 
 
-class NewlabConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class NewlabConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle the UI config flow for Newlab LED."""
 
     VERSION = 1

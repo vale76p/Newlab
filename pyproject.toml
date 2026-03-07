@@ -16,9 +16,30 @@ select = [
   "B",   # flake8-bugbear
   "UP",  # pyupgrade
   "SIM", # flake8-simplify
+  "C4",  # flake8-comprehensions
+  "PIE", # flake8-pie
+  "RET", # flake8-return
+  "TC",  # flake8-type-checking
 ]
-ignore = ["E501", "UP017"]  # UP017: datetime.UTC requires Python 3.11+; tests run on 3.9
+ignore = [
+  "E501",   # line too long — handled by formatter
+  "UP017",  # datetime.UTC requires Python 3.11+
+  "RET504", # unnecessary variable assignment before return
+  "TC001",  # move application import to TYPE_CHECKING block
+  "TC002",  # move third-party import to TYPE_CHECKING block
+  "TC003",  # move stdlib import to TYPE_CHECKING block
+]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+no_implicit_reexport = true
+exclude = ["tests/"]
