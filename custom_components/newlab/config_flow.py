@@ -130,8 +130,9 @@ class NewlabOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
-        current_interval = self._config_entry.data.get(
-            CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL
+        current_interval = self._config_entry.options.get(
+            CONF_POLL_INTERVAL,
+            self._config_entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL),
         )
 
         if user_input is not None:

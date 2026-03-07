@@ -72,10 +72,18 @@ def _install_homeassistant_stubs() -> None:
         def async_create_entry(self, *, title: str, data: dict[str, Any]) -> dict[str, Any]:
             return {"type": "create_entry", "title": title, "data": data}
 
+    class ConfigEntryAuthFailed(Exception):
+        pass
+
+    class ConfigEntryNotReady(Exception):
+        pass
+
     config_entries.ConfigEntry = ConfigEntry
     config_entries.ConfigFlow = ConfigFlow
     config_entries.OptionsFlow = OptionsFlow
     config_entries.FlowResult = dict
+    config_entries.ConfigEntryAuthFailed = ConfigEntryAuthFailed
+    config_entries.ConfigEntryNotReady = ConfigEntryNotReady
     homeassistant.config_entries = config_entries
 
     const = ModuleType("homeassistant.const")

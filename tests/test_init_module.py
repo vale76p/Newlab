@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import sys
 from types import SimpleNamespace
+
+import pytest
 
 init_module = importlib.import_module("custom_components.newlab.__init__")
 api_module = importlib.import_module("custom_components.newlab.api")
@@ -84,7 +87,9 @@ def test_async_setup_and_unload_entry(monkeypatch) -> None:
     assert unload is True
 
 
-def test_async_setup_entry_returns_false_on_auth_error(monkeypatch) -> None:
+def test_async_setup_entry_raises_auth_failed_on_auth_error(monkeypatch) -> None:
+    ConfigEntryAuthFailed = sys.modules["homeassistant.config_entries"].ConfigEntryAuthFailed
+
     class _AuthFailAPI(_FakeAPI):
         async def login(self) -> None:
             raise api_module.NewlabAuthError("bad auth")
@@ -94,8 +99,38 @@ def test_async_setup_entry_returns_false_on_auth_error(monkeypatch) -> None:
     monkeypatch.setattr(init_module, "async_get_clientsession", lambda _h: object())
     monkeypatch.setattr(init_module, "NewlabAPI", _AuthFailAPI)
 
-    result = asyncio.run(init_module.async_setup_entry(hass, entry))
-    assert result is False
+    with pytest.raises(ConfigEntryAuthFailed):
+        asyncio.run(init_module.async_setup_entry(hass, entry))
+
+
+def test_async_setup_entry_raises_not_ready_on_connection_error(monkeypatch) -> None:
+    ConfigEntryNotReady = sys.modules["homeassistant.config_entries"].ConfigEntryNotReady
+
+    class _ConnFailAPI(_FakeAPI):
+        async def login(self) -> None:
+            raise api_module.NewlabConnectionError("no internet")
+
+    hass = _hass()
+    entry = _entry()
+    monkeypatch.setattr(init_module, "async_get_clientsession", lambda _h: object())
+    monkeypatch.setattr(init_module, "NewlabAPI", _ConnFailAPI)
+
+    with pytest.raises(ConfigEntryNotReady):
+        asyncio.run(init_module.async_setup_entry(hass, entry))
+
+
+def test_options_flow_reads_interval_from_options() -> None:
+    config_flow_module = importlib.import_module("custom_components.newlab.config_flow")
+
+    ConfigEntry = sys.modules["homeassistant.config_entries"].ConfigEntry
+    entry = ConfigEntry(
+        data={"poll_interval": 10},
+        options={"poll_interval": 30},
+    )
+    flow = config_flow_module.NewlabOptionsFlow(entry)
+    result = asyncio.run(flow.async_step_init(None))
+    # Form is shown with current_interval from options (30), not data (10)
+    assert result["type"] == "form"
 
 
 def test_update_listener_triggers_reload() -> None:
