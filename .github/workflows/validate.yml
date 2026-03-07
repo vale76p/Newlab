@@ -7,13 +7,16 @@ on:
 jobs:
   lint_and_tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
@@ -32,7 +35,8 @@ jobs:
             --cov=custom_components/newlab \
             --cov-report=term-missing \
             --cov-report=xml:coverage.xml \
-            --cov-report=html:htmlcov | tee coverage.txt
+            --cov-report=html:htmlcov \
+            --cov-fail-under=85 | tee coverage.txt
 
       - name: Coverage Summary
         shell: bash
@@ -44,6 +48,7 @@ jobs:
           echo "- Artifact: \`coverage.xml\` + \`htmlcov/\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Coverage Artifacts
+        if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
