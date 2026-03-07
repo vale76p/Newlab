@@ -186,35 +186,6 @@ Then check **Settings → System → Logs** and filter by `newlab`.
 
 ---
 
-## Sviluppo Locale (Test + Lint + Mypy)
-
-Questa repo include:
-- **Lint** con `ruff` (E, F, I, B, UP, SIM, C4, PIE, RET, TC)
-- **Type check** con `mypy` (configurazione graduale)
-- **Test** con `pytest` — 33 unit test, coverage ≥ 85% gate in CI
-- **CI GitHub Actions** — matrice Python 3.11/3.12, job separato per mypy
-
-Comandi locali:
-
-```bash
-# Installa tool di sviluppo (una volta)
-python3 -m pip install --user ruff pytest pytest-cov aiohttp mypy
-
-# Lint
-ruff check .
-
-# Type check
-mypy custom_components/newlab
-
-# Test
-pytest -q
-
-# Coverage report (console + coverage.xml + htmlcov/) con gate
-pytest -q --cov=custom_components/newlab --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=85
-```
-
-Se i tool non sono nel `PATH`, usa il prefisso `python3 -m` (es. `python3 -m ruff check .`).
-
 ---
 
 ## Changelog
