@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import logging
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -66,13 +66,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "[setup] authentication failed for user=%r: %s — check credentials",
             username, exc,
         )
-        return False
+        raise ConfigEntryAuthFailed(str(exc)) from exc
     except NewlabConnectionError as exc:
         _LOGGER.error(
             "[setup] cannot reach Newlab cloud: %s — check internet connection",
             exc,
         )
-        return False
+        raise ConfigEntryNotReady(str(exc)) from exc
 
     coordinator = NewlabCoordinator(hass, api, poll_interval)
 
