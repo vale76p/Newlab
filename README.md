@@ -2,9 +2,9 @@
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/HA-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![Version](https://img.shields.io/badge/version-1.2.0-green.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-green.svg)](CHANGELOG.md)
 [![Validate](https://github.com/vale76p/Newlab/actions/workflows/validate.yml/badge.svg)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
-[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](https://github.com/vale76p/Newlab/actions/workflows/validate.yml)
 
 Custom integration for controlling **Newlab LED** lighting zones via the
 `smarthome.newlablight.com` cloud platform.

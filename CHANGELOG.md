@@ -6,12 +6,20 @@ All notable changes to the Newlab LED integration are documented here.
 
 ## [Unreleased]
 
+No changes yet.
+
+---
+
+## [1.3.0] — 2026-03-07
+
 ### Added
 
 - **`ConfigEntryAuthFailed` / `ConfigEntryNotReady`** — `async_setup_entry` now raises proper
   HA exceptions instead of `return False`, enabling automatic credential re-prompt and retry UI.
 - **Options flow precedence fix** — poll interval is now read from `entry.options` before
   `entry.data`, so a configured override is preserved after integration reload.
+- **Integration tests** — 6 async tests with `pytest-homeassistant-custom-component` covering
+  setup, auth failure, connection failure, unload, entity creation, and options reload.
 - **HTTP client edge-case tests** — 14 new tests covering login failures, HTTP errors, unauthenticated
   calls, and `ensure_authenticated`; client.py coverage raised to 91%.
 - **HTML parser contract tests** — 40 tests across 9 fixture files covering strategies A/B/C/D,
