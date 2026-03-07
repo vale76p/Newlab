@@ -240,6 +240,52 @@ Integration behavior:
 
 ---
 
+## i18n — English / Italian variants
+
+The Newlab cloud uses Django i18n. The active language depends on the browser's
+`Accept-Language` header sent during login. In practice, installations may return
+either English or Italian labels for system info fields.
+
+All parser regexes in `parsers.py` support both languages simultaneously (no header
+override sent by the integration — it accepts whichever language the server returns).
+
+Tested i18n pairs:
+
+| Field | English | Italian |
+|-------|---------|---------|
+| Plant code label | `Plant Id:` | `Codice Impianto:` |
+| Sync label | `Last syncronization:` | `Ultima sincronizzazione:` |
+| Version | Same (`<title>` tag) | Same (`<title>` tag) |
+| Zone names | From HTML labels (language-agnostic) | From HTML labels |
+
+Note: "syncronization" is a spelling error in the cloud HTML (missing 'h') — the regex
+matches this typo explicitly.
+
+HTML fixtures covering both variants are in `tests/fixtures/`:
+- `home_strategy_a_en.html` — English system info
+- `home_strategy_a_it.html` — Italian system info
+
+---
+
+## Cookie Management
+
+The integration stores two cookies in memory (never on disk):
+
+| Cookie | Source | Used in |
+|--------|--------|---------|
+| `csrftoken` | Set-Cookie on GET /registrationwelcome | X-CSRFToken header |
+| `sessionid` | Set-Cookie on POST /registrationlogin | Cookie header on all requests |
+
+Both cookies are stored as plain strings in `NewlabAPI._csrf_token` and
+`NewlabAPI._session_id`. They are sent as a combined `Cookie:` header on all
+authenticated requests. No browser-style cookie jar is used at runtime — cookies are
+extracted directly from aiohttp's `CookieJar` after login and discarded.
+
+Session lifetime: unknown (Django default is typically 2 weeks). The coordinator
+detects expiry via redirect detection and re-authenticates automatically.
+
+---
+
 ## Implementation Note
 
 Since refactor, API layer is modular:
