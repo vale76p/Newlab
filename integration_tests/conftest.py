@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+import pytest_asyncio
 
 # Make custom_components importable without installing the package.
 # tests/conftest.py is NOT loaded here because this directory is outside tests/.
@@ -15,12 +16,12 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from custom_components.newlab.api import NewlabGroup
-from custom_components.newlab.const import CONF_POLL_INTERVAL, DOMAIN
-
 # ---------------------------------------------------------------------------
 # Shared mock data
 # ---------------------------------------------------------------------------
+
+from custom_components.newlab.api import NewlabGroup  # noqa: E402
+from custom_components.newlab.const import CONF_POLL_INTERVAL, DOMAIN  # noqa: E402
 
 MOCK_GROUPS: dict[int, NewlabGroup] = {
     2: NewlabGroup(id_group=2, name="Cucina", pwm=200),
@@ -67,8 +68,8 @@ def entry_data() -> dict:
     }
 
 
-@pytest.fixture
-def mock_config_entry(hass, entry_data):
+@pytest_asyncio.fixture
+async def mock_config_entry(hass, entry_data):
     """Add a MockConfigEntry for the Newlab domain to hass."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
 

@@ -13,11 +13,9 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant.config_entries import ConfigEntryAuthFailed, ConfigEntryNotReady
-
-from custom_components.newlab.api import NewlabAuthError, NewlabConnectionError
+from custom_components.newlab.api import NewlabAuthError, NewlabConnectionError, NewlabGroup
 from custom_components.newlab.const import CONF_POLL_INTERVAL, DOMAIN
-
+from homeassistant.config_entries import ConfigEntryAuthFailed, ConfigEntryNotReady
 
 # ---------------------------------------------------------------------------
 # Helpers (import _make_api from conftest indirectly — conftest fixtures inject it)
@@ -118,9 +116,12 @@ async def test_options_update_triggers_reload(hass, mock_config_entry, mock_api)
         )
         await hass.async_block_till_done()
 
-    # Entry should have been reloaded: new coordinator instance
-    if mock_config_entry.entry_id in hass.data.get(DOMAIN, {}):
-        new_coordinator = hass.data[DOMAIN][mock_config_entry.entry_id]
-        # If reloaded, the coordinator object will be a new instance
-        assert new_coordinator is not original_coordinator or True
-        # (reload is best-effort — main assertion is that the entry survives)
+    # Entry should still be healthy after options update; reload may recreate coordinator.
+    assert mock_config_entry.entry_id in hass.data.get(DOMAIN, {})
+    new_coordinator = hass.data[DOMAIN][mock_config_entry.entry_id]
+    assert hasattr(new_coordinator, "update_interval")
+    assert int(new_coordinator.update_interval.total_seconds()) == 30
+    assert isinstance(new_coordinator.data, dict)
+    if new_coordinator.data:
+        assert isinstance(next(iter(new_coordinator.data.values())), NewlabGroup)
+    _ = original_coordinator
